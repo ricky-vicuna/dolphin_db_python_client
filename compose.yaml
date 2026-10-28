@@ -1,0 +1,12 @@
+name: dolphin-ticks
+services:
+  dolphindb:
+    image: dolphindb/dolphindb:v3.00.5
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:${DDB_PORT:-8849}:8848"
+    volumes:
+      - dolphin-data:/data/ddb/server/data
+    restart: unless-stopped
+volumes:
+  dolphin-data:
