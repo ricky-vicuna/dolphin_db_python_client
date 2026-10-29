@@ -1,4 +1,4 @@
-.PHONY: check fix freeze
+.PHONY: check fix freeze init-dev test test-integration
 
 
 init-dev:
@@ -6,14 +6,20 @@ init-dev:
 
 check:
 	@echo "Running check..."
-	ruff format --check src
-	ruff check src
+	ruff format --check src tests
+	ruff check src tests
 	pyright
 
 fix:
 	@echo "Running fix..."
-	ruff format src
-	ruff check --fix src
+	ruff format src tests
+	ruff check --fix src tests
+
+test:
+	PYTHONPATH=src python -m unittest tests.test_unit -v
+
+test-integration:
+	PYTHONPATH=src python -m unittest tests.test_integration -v
 
 freeze:
 	@echo "Freezing dependencies..."

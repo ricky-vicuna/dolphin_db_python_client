@@ -27,10 +27,8 @@ from data_processing.trades_types import (
     TradeBSFlag,
 )
 
-from .client import TickClient
+from .client import DB_PATH, TABLE_NAME, TIMEZONE, TickClient
 
-DB_PATH = "dfs://python_ticks"
-TABLE_NAME = "python_trades"
 BATCH_SIZE = 10_000
 COLUMN_TYPES = {
     "exchange": keys.DT_SYMBOL,
@@ -92,7 +90,7 @@ def _to_frame(items: list[TickTradeDBItem]) -> pd.DataFrame:
     for column in ("recv_dt", "event_dt"):
         frame[column] = (
             pd.to_datetime(frame[column], utc=True)
-            .dt.tz_convert("Asia/Shanghai")
+            .dt.tz_convert(TIMEZONE)
             .dt.tz_localize(None)
             .astype("datetime64[ns]")
         )
