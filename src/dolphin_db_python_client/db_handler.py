@@ -14,9 +14,9 @@ import re
 from datetime import date, datetime
 from pathlib import Path
 
-from dolphindb import Session
 import dolphindb.settings as keys
 import pandas as pd
+from dolphindb import Session
 
 from data_processing.trades_types import (
     Exchange,
@@ -46,7 +46,9 @@ COLUMN_TYPES = {
 def _trading_day(path: Path) -> date:
     match = re.search(r"(?<!\d)(\d{8})(?!\d)", path.stem)
     if match is None:
-        raise ValueError(f"CSV filename must contain a YYYYMMDD trading date: {path.name}")
+        raise ValueError(
+            f"CSV filename must contain a YYYYMMDD trading date: {path.name}"
+        )
     return datetime.strptime(match.group(1), "%Y%m%d").date()
 
 
@@ -100,7 +102,7 @@ def _to_frame(items: list[TickTradeDBItem]) -> pd.DataFrame:
     return frame
 
 
-def _ensure_table(session:Session) -> None:
+def _ensure_table(session: Session) -> None:
     session.run(f'''
         if (!existsDatabase("{DB_PATH}")) {{
             database("{DB_PATH}", HASH, [STRING, 8])
@@ -118,15 +120,19 @@ def _ensure_table(session:Session) -> None:
     if list(schema["name"]) != list(COLUMN_TYPES) or list(schema["typeInt"]) != list(
         COLUMN_TYPES.values()
     ):
-        raise ValueError(f"{DB_PATH}/{TABLE_NAME} does not match TickTradeDBItem schema")
+        raise ValueError(
+            f"{DB_PATH}/{TABLE_NAME} does not match TickTradeDBItem schema"
+        )
 
 
-def _append_batch(session:Session, items: list[TickTradeDBItem]) -> None:
+def _append_batch(session: Session, items: list[TickTradeDBItem]) -> None:
     session.upload({"pythonTradesIncoming": _to_frame(items)})
     try:
         inserted = session.run("tableInsert(pythonTradesTarget, pythonTradesIncoming)")
         if inserted != len(items):
-            raise RuntimeError(f"Expected to insert {len(items)} rows, inserted {inserted}")
+            raise RuntimeError(
+                f"Expected to insert {len(items)} rows, inserted {inserted}"
+            )
     finally:
         session.run("undef(`pythonTradesIncoming)")
 

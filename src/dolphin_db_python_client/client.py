@@ -18,7 +18,8 @@ class TickClient:
             if not self.session.connect(
                 os.environ.get("DDB_HOST", "127.0.0.1"),
                 int(os.environ.get("DDB_PORT", "8849")),
-                os.environ["DDB_USER"], os.environ["DDB_PASSWORD"],
+                os.environ["DDB_USER"],
+                os.environ["DDB_PASSWORD"],
             ):
                 raise ConnectionError("DolphinDB connection failed")
         except BaseException:
@@ -61,6 +62,8 @@ class TickClient:
 
     def universe(self, **filters):
         return self.fetch(
-            self.trades(**filters).select(["exchange", "symbol", "count(*) as n"])
-            .groupby(["exchange", "symbol"]).sort(["exchange", "symbol"])
+            self.trades(**filters)
+            .select(["exchange", "symbol", "count(*) as n"])
+            .groupby(["exchange", "symbol"])
+            .sort(["exchange", "symbol"])
         )
